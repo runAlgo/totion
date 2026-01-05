@@ -82,6 +82,21 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.list.SetItems(noteList)
 			m.showingList = true
 			return m, nil
+		case "ctrl+d":
+			if m.showingList {
+				selectedItem, ok := m.list.SelectedItem().(item)
+				if !ok {
+					break
+				}
+				filePath := fmt.Sprintf("%s/%s", vaultDir, selectedItem.title)
+				err := os.Remove(filePath)
+				if err != nil {
+					log.Printf("Failed to delete file: %v", err)
+				} else {
+					// refresh list after deletion
+					m.list.SetItems(listFiles())
+				}
+			}
 		case "ctrl+s":
 			// textarea value -> write it in the file descriptor and close it
 			if m.currentFile == nil {
